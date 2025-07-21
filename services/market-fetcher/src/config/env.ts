@@ -43,20 +43,20 @@ export function loadConfig(): AppConfig {
       rateLimit: process.env.EXCHANGE_RATE_LIMIT === 'true'
     },
     market: {
-      allSymbols: process.env.MARKET_ALL_SYMBOLS === 'true',
+      allSymbols: process.env.MARKET_ALL_SYMBOLS !== 'false',
       activeOnly: process.env.MARKET_ACTIVE_ONLY !== 'false',
       spot: {
-        enabled: process.env.MARKET_SPOT_ENABLED === 'true',
-        symbols: process.env.MARKET_SPOT_SYMBOLS?.split(',') || []
+        enabled: process.env.MARKET_SPOT_ENABLED !== 'false',
+        symbols: process.env.MARKET_SPOT_SYMBOLS?.split(',') || ["BTC:USDT,ETH:USDT"]
       },
       futures: {
-        enabled: process.env.MARKET_FUTURES_ENABLED === 'true',
-        symbols: process.env.MARKET_FUTURES_SYMBOLS?.split(',') || []
+        enabled: process.env.MARKET_FUTURES_ENABLED !== 'false',
+        symbols: process.env.MARKET_FUTURES_SYMBOLS?.split(',') || ["BTC:USDT/USDC,ETH:USDT/USDT,BNB:USDT/USDT"]
       }
     },
     scheduler: {
-      enabled: process.env.SCHEDULER_ENABLED === 'true',
-      interval: parseInt(process.env.SCHEDULER_INTERVAL || '60000')
+      enabled: process.env.SCHEDULER_ENABLED !== 'false',
+      interval: parseInt(process.env.SCHEDULER_INTERVAL || '5000')
     },
     redis: {
       url: process.env.REDIS_URL || 'redis://localhost:6379'

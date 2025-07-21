@@ -25,26 +25,32 @@ for service in services:
     k8s_yaml('%s/config.yaml' % service_k8s_dir)
     k8s_yaml('%s/deployment.yaml' % service_k8s_dir)
     
-    # Optimized Docker build with process restart
+    # Ultra-optimized Docker build
     docker_build_with_restart(
       service,
       '.',
       dockerfile='%s/Dockerfile' % service_dir,
       target='dev',
-      # Only rebuild when these directories change
+      # Minimal rebuild triggers - only critical files
       only=[
-        service_dir,
+        '%s/src' % service_dir,
+        '%s/Dockerfile' % service_dir,
+        '%s/project.json' % service_dir,
         'package.json',
         'bun.lock',
-        'shared/'
+        'shared/',
+        'tsconfig.json',
+        'tsconfig.base.json'
       ],
-      # Fast file sync for development
+      # Aggressive live sync - no rebuilds for most changes
       live_update=[
-        # Sync source code changes instantly
+        # Sync ALL source changes instantly without rebuild
         sync('%s/src' % service_dir, '/app/%s/src' % service_dir),
         sync('shared/', '/app/shared/'),
+        sync('tsconfig.json', '/app/tsconfig.json'),
+        sync('tsconfig.base.json', '/app/tsconfig.base.json'),
         
-        # Restart on dependency changes
+        # Only restart process on dependency changes
         run('bun install', trigger=['package.json', 'bun.lock'])
       ],
       # Process to restart on changes
@@ -67,14 +73,15 @@ k8s_resource('redis',
   ]
 )
 
-# Performance settings
-update_settings(max_parallel_updates=5)
-update_settings(k8s_upsert_timeout_secs=30)
+# Performance settings for maximum speed
+update_settings(max_parallel_updates=10)
+update_settings(k8s_upsert_timeout_secs=60)
+update_settings(suppress_unused_image_warnings=None)
 
-print('🚀 Development optimized!')
+print('🚀 Development ultra-optimized!')
 print('📊 Tilt UI: http://localhost:10350')
 print('🔧 Analytics: http://localhost:3000')
 print('📈 Market-fetcher: http://localhost:3001')
 print('🗄️  Redis: localhost:6379')
 print('🔍 Redis Insight: http://localhost:8001')
-print('📁 Clean k8s structure: k8s/ + services/*/k8s/')
+print('⚡ Live sync enabled - instant file changes!')
