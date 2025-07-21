@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: market-fetcher-config
+  namespace: walder-apps
+data:
+  MARKET_ALL_SYMBOLS: "true"
+  MARKET_ACTIVE_ONLY: "true"
+  MARKET_SPOT_ENABLED: "true"
+  MARKET_SPOT_SYMBOLS: "BTC/USDT,ETH/USDT"
+  MARKET_FUTURES_ENABLED: "true"
+  MARKET_FUTURES_SYMBOLS: "BTC/USDT:USDT,ETH/USDT:USDT"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: market-fetcher
+  namespace: walder-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: market-fetcher
+  template:
+    metadata:
+      labels:
+        app: market-fetcher
+    spec:
+      containers:
+      - name: market-fetcher
+        image: ghcr.io/walder-ai/market-fetcher:latest
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: market-fetcher-config
+        - secretRef:
+            name: redis-secret
+        resources:
+          requests:
+            memory: 64Mi
+            cpu: 20m
+          limits:
+            memory: 200Mi
+            cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: market-fetcher
+  namespace: walder-apps
+spec:
+  ports:
+  - port: 3000
+    targetPort: 3000
+  selector:
+    app: market-fetcher 

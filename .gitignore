@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production
+/build
+/dist
+
+# Kubernetes secrets
+deploy/k8s/*-secret.yaml
+deploy/k8s/*-secret-*.yaml
+
+# Logs
+bun-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# IDE & AI Tools
+.vscode/
+.idea/
+.claude/
+.cursor/
+*.swp
+*.swo
+
+# Build tools & caches
+.nx/
+dist/
+.next/
+.nuxt/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+
+.vscode/
+
+# Secrets - never commit real secrets!
+# clusters/production/redis-secret.yaml
+
+# Flux SOPS key
+age.agekey

@@ -1,0 +1,3 @@
+creation_rules:
+  - path_regex: clusters/production/.*-secret\.yaml$
+    age: age146wzwt7k0st2gvvj6lk5cqc3kht2cxtynsweq5qg2uqp9qk43f5qaz3ek2 

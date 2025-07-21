@@ -1,0 +1,26 @@
+{
+  "name": "market-fetcher",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "services/market-fetcher/src",
+  "projectType": "application",
+  "targets": {
+    "dev": {
+      "command": "bun --watch src/index.ts",
+      "options": {
+        "cwd": "services/market-fetcher"
+      }
+    },
+    "build": {
+      "command": "bun build --compile --minify-whitespace --minify-syntax --target bun --outfile ../../dist/market-fetcher src/index.ts",
+      "options": {
+        "cwd": "services/market-fetcher"
+      }
+    },
+    "start": {
+      "command": "../../dist/market-fetcher",
+      "options": {
+        "cwd": "services/market-fetcher"
+      }
+    }
+  }
+}
