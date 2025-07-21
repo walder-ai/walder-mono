@@ -1,56 +1,55 @@
 import { MarketService } from '../market'
+import { config } from '../../config'
 
 export class SchedulerService {
-  private intervalId?: NodeJS.Timeout
-  private readonly FETCH_INTERVAL = 10000
-  private isProcessing = false
+  private intervalId: NodeJS.Timeout | null = null
+  private isRunning = false
 
   constructor(private marketService: MarketService) {}
 
   start(): void {
-    // Initial fetch with delay to let HTTP server settle
-    setTimeout(() => {
-      this.fetchDataImmediate()
-    }, 5000)
+    if (this.isRunning) {
+      console.log('⚠️  Scheduler already running')
+      return
+    }
+
+    console.log(`⏰ Starting scheduler with ${config.scheduler.interval}ms interval`)
     
-    this.schedulePeriodicFetching()
+    // Start immediately
+    this.fetchData()
+    
+    // Then schedule regular intervals
+    this.intervalId = setInterval(() => {
+      this.fetchData()
+    }, config.scheduler.interval)
+    
+    this.isRunning = true
+    console.log('✅ Scheduler started')
   }
 
   stop(): void {
     if (this.intervalId) {
       clearInterval(this.intervalId)
-      this.intervalId = undefined
+      this.intervalId = null
+    }
+    this.isRunning = false
+    console.log('🛑 Scheduler stopped')
+  }
+
+  getStatus(): { running: boolean; interval: number } {
+    return {
+      running: this.isRunning,
+      interval: config.scheduler.interval
     }
   }
 
-  private async fetchDataImmediate(): Promise<void> {
-    if (this.isProcessing) return
-    
-    this.isProcessing = true
+  private async fetchData(): Promise<void> {
     try {
+      console.log('🔄 Fetching market data...')
       await this.marketService.fetchAndStoreData()
+      console.log('✅ Market data updated')
     } catch (error) {
-      console.error('❌ Initial fetch failed:', error)
-    } finally {
-      this.isProcessing = false
+      console.error('❌ Error fetching market data:', error)
     }
-  }
-
-  private schedulePeriodicFetching(): void {
-    this.intervalId = setInterval(async () => {
-      if (this.isProcessing) {
-        console.log('⏳ Skipping fetch - previous still running')
-        return
-      }
-      
-      this.isProcessing = true
-      try {
-        await this.marketService.fetchAndStoreData()
-      } catch (error) {
-        console.error('❌ Periodic fetch failed:', error)
-      } finally {
-        this.isProcessing = false
-      }
-    }, this.FETCH_INTERVAL)
   }
 }

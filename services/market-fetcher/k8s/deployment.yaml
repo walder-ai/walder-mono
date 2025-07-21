@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: market-fetcher
+  namespace: walder-apps
+  labels:
+    app: market-fetcher
+    service: market-fetcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: market-fetcher
+  template:
+    metadata:
+      labels:
+        app: market-fetcher
+    spec:
+      containers:
+      - name: market-fetcher
+        image: market-fetcher
+        ports:
+        - containerPort: 3000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: market-fetcher-config
+        - secretRef:
+            name: market-fetcher-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: market-fetcher
+  namespace: walder-apps
+  labels:
+    app: market-fetcher
+spec:
+  selector:
+    app: market-fetcher
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    protocol: TCP 

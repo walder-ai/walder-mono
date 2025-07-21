@@ -12,19 +12,21 @@ export interface TickerData {
   low: number
 }
 
-export interface ExchangeProvider {
-  fetchTickers(symbols?: string[]): Promise<Record<string, TickerData>>
-  fetchFilteredTickers(): Promise<Record<string, TickerData>>
-}
-
-export interface MarketService {
-  getType(): 'spot' | 'futures'
-  fetchAndStoreData(): Promise<void>
-}
-
 export interface CacheService {
   set(key: string, data: any): Promise<void>
   setMultiple(marketType: string, data: Record<string, any>): Promise<void>
   get(key: string): Promise<any>
   getMultiple(keys: string[]): Promise<Record<string, any>>
+  getMarketData?(marketType: 'spot' | 'futures'): Promise<Record<string, any>>
+  disconnect(): Promise<void>
+}
+
+export interface ExchangeProvider {
+  fetchFilteredTickers(): Promise<any[]>
+}
+
+export interface MarketService {
+  fetchAndStoreData(marketType?: 'spot' | 'futures'): Promise<void>
+  getLatestData(marketType: 'spot' | 'futures'): Promise<Record<string, any>>
+  getType(): 'spot' | 'futures'
 }

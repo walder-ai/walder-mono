@@ -7,10 +7,6 @@ node_modules/
 /build
 /dist
 
-# Kubernetes secrets
-deploy/k8s/*-secret.yaml
-deploy/k8s/*-secret-*.yaml
-
 # Logs
 bun-debug.log*
 yarn-debug.log*
@@ -42,12 +38,3 @@ Thumbs.db
 
 # Logs
 *.log
-
-
-.vscode/
-
-# Secrets - never commit real secrets!
-# clusters/production/redis-secret.yaml
-
-# Flux SOPS key
-age.agekey

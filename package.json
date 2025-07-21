@@ -8,13 +8,7 @@
     "dev": "nx run-many -t dev --parallel",
     "build": "nx run-many -t build --parallel",
     "start": "nx run-many -t start --parallel",
-    "clean": "nx reset",
-    "dev:market-fetcher": "nx run market-fetcher:dev",
-    "build:market-fetcher": "nx run market-fetcher:build",
-    "start:market-fetcher": "nx run market-fetcher:start",
-    "dev:analytics-service": "nx run analytics-service:dev",
-    "build:analytics-service": "nx run analytics-service:build",
-    "start:analytics-service": "nx run analytics-service:start"
+    "clean": "nx reset"
   },
   "dependencies": {
     "@redis/json": "^5.6.0",

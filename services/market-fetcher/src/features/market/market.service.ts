@@ -2,6 +2,7 @@ import { ExchangeProvider, MarketService as IMarketService, CacheService } from 
 import { SpotExchangeProvider, FuturesExchangeProvider } from '../../shared/exchange'
 import { TickerTransformer } from '../../utils/ticker-transformer'
 import { config } from '../../config'
+import { RedisCacheService } from '../../shared/cache'
 
 export class MarketService implements IMarketService {
   private spotProvider: ExchangeProvider
@@ -34,6 +35,12 @@ export class MarketService implements IMarketService {
   }
 
   async getLatestData(marketType: 'spot' | 'futures'): Promise<Record<string, any>> {
+    // Cast to RedisCacheService to access the specialized method
+    if (this.cacheService instanceof RedisCacheService) {
+      return await this.cacheService.getMarketData(marketType)
+    }
+    
+    // Fallback for interface compatibility
     return await this.cacheService.getMultiple([`${marketType}:*`])
   }
 
@@ -48,8 +55,7 @@ export class MarketService implements IMarketService {
       await this.cacheService.setMultiple(marketType, transformedData)
       console.log(`✅ ${marketType} data updated: ${Object.keys(transformedData).length} symbols`)
     } catch (error) {
-      console.error(`❌ ${marketType} market error:`, error instanceof Error ? error.message : error)
-      // Don't throw - let other markets continue
+      console.error(`❌ Error updating ${marketType} data:`, error)
     }
   }
 }

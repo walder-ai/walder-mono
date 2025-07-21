@@ -3,89 +3,93 @@ import { MarketService } from './features/market'
 import { SchedulerService } from './features/scheduler'
 import { RedisCacheService } from './shared/cache'
 import { config } from './config'
-import { HealthChecker } from '../../../shared/health'
-
-const SERVICE_CONFIG = {
-  name: 'market-fetcher',
-  version: '2.0.0',
-  features: ['auto-scaling', 'zero-downtime', 'instant-rollback', 'gitops-powered', 'fully-automated']
-}
 
 export class App {
   private app: Elysia
-  private schedulerService: SchedulerService
   private cacheService: RedisCacheService
   private marketService: MarketService
-  private healthChecker: HealthChecker
+  private schedulerService: SchedulerService
 
   constructor() {
     this.cacheService = new RedisCacheService()
     this.marketService = new MarketService(this.cacheService)
     this.schedulerService = new SchedulerService(this.marketService)
-    
-    this.healthChecker = new HealthChecker({
-      service: SERVICE_CONFIG.name,
-      version: SERVICE_CONFIG.version,
-      features: SERVICE_CONFIG.features,
-      checkDependencies: async () => ({
-        redis: this.cacheService.getConnectionStatus() ? 'connected' : 'disconnected'
-      })
-    })
-    
+
     this.app = new Elysia()
-      .get('/health', this.healthChecker.createHandler())
-      .get('/', () => ({ 
-        message: `🤖 AUTOMATION ENGINE v${SERVICE_CONFIG.version} - Fully Automated!`, 
-        service: SERVICE_CONFIG.name,
-        features: SERVICE_CONFIG.features,
-        status: 'automated',
+      .get('/health', () => ({
+        status: 'healthy',
+        service: config.service.name,
+        version: '1.0.0',
         timestamp: new Date().toISOString(),
-        deployment: 'GitOps Fully Automated',
-        rollback: 'instant-available'
-      }))
-      .get('/api/status', () => ({
-        service: SERVICE_CONFIG.name,
-        version: SERVICE_CONFIG.version,
+        message: `📈 ${config.service.name} v1.0.0`,
         uptime: process.uptime(),
-        cache_status: this.cacheService.getConnectionStatus() ? 'connected' : 'disconnected',
-        environment: 'production',
-        automation: 'COMPLETE'
+        environment: config.service.environment,
+        logLevel: config.service.logLevel,
+        features: ['market-data', 'ccxt', 'redis-timeseries', 'env-config'],
+        config: {
+          exchange: config.exchange.name,
+          spotEnabled: config.market.spot.enabled,
+          futuresEnabled: config.market.futures.enabled,
+          schedulerEnabled: config.scheduler.enabled,
+          schedulerInterval: config.scheduler.interval,
+          redisUrl: config.redis.url ? '***configured***' : 'not set'
+        }
       }))
+      .get('/', () => ({
+        service: config.service.name,
+        version: '1.0.0',
+        endpoints: ['/health', '/config', '/api/market/data'],
+        environment: config.service.environment
+      }))
+      .get('/config', () => ({
+        service: config.service,
+        exchange: config.exchange,
+        market: {
+          allSymbols: config.market.allSymbols,
+          activeOnly: config.market.activeOnly,
+          spot: config.market.spot,
+          futures: config.market.futures
+        },
+        scheduler: config.scheduler,
+        // Don't expose sensitive data
+        redis: {
+          url: config.redis.url ? '***configured***' : 'not set'
+        }
+      }))
+      .get('/api/market/data', async () => {
+        return await this.marketService.getLatestData('spot')
+      })
   }
 
-  async start(): Promise<void> {
-    // Start HTTP server first - listen on all interfaces for Docker/K8s
-    this.app.listen({
-      port: config.port,
-      hostname: '0.0.0.0'
-    })
-    console.log(`🤖 Automation Engine v${SERVICE_CONFIG.version} - ZERO TOUCH DEPLOYMENT!`)
-    console.log(`⚡ Full GitOps: git → build → deploy → rollback ready`)
-    console.log(`🎯 Features: ${SERVICE_CONFIG.features.join(' | ')}`)
-    console.log(`🚀 AUTOMATION COMPLETE!`)
-    
-    // Start background tasks after server is ready
-    setTimeout(() => {
+  async start() {
+    // Only start scheduler if enabled
+    if (config.scheduler.enabled) {
       this.schedulerService.start()
-    }, 5000)
-
-    this.setupGracefulShutdown()
+      console.log(`⏰ Scheduler enabled: ${config.scheduler.interval}ms interval`)
+    } else {
+      console.log('⏸️  Scheduler disabled')
+    }
+    
+    this.app.listen({ port: config.service.port })
+    
+    console.log(`📈 ${config.service.name} v1.0.0`)
+    console.log(`🚀 Server running: http://localhost:${config.service.port}`)
+    console.log(`🌍 Environment: ${config.service.environment}`)
+    console.log(`📊 Log Level: ${config.service.logLevel}`)
+    console.log(`📊 Exchange: ${config.exchange.name}`)
+    console.log(`💹 Spot: ${config.market.spot.enabled ? 'enabled' : 'disabled'}`)
+    console.log(`🔮 Futures: ${config.market.futures.enabled ? 'enabled' : 'disabled'}`)
+    
+    if (config.market.spot.enabled) {
+      console.log(`📊 Spot symbols: ${config.market.spot.symbols.join(', ')}`)
+    }
+    if (config.market.futures.enabled) {
+      console.log(`🔮 Futures symbols: ${config.market.futures.symbols.join(', ')}`)
+    }
   }
 
-  async stop(): Promise<void> {
+  async stop() {
     this.schedulerService.stop()
     await this.cacheService.disconnect()
-    
-    console.log('Application stopped gracefully')
-  }
-
-  private setupGracefulShutdown(): void {
-    const shutdown = async () => {
-      await this.stop()
-      process.exit(0)
-    }
-
-    process.on('SIGINT', shutdown)
-    process.on('SIGTERM', shutdown)
   }
 }

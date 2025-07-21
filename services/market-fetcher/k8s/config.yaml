@@ -1,0 +1,40 @@
+# Market Fetcher Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: market-fetcher-config
+  namespace: walder-apps
+data:
+  # Service specific
+  SERVICE_NAME: "market-fetcher"
+  NODE_ENV: "development"
+  LOG_LEVEL: "info"
+  PORT: "3000"
+  
+  # Market fetcher configuration
+  MARKET_ALL_SYMBOLS: "true"
+  MARKET_ACTIVE_ONLY: "true"
+  MARKET_SPOT_ENABLED: "true"
+  MARKET_SPOT_SYMBOLS: "BTCUSDT,ETHUSDT,BNBUSDT,ADAUSDT,SOLUSDT"
+  MARKET_FUTURES_ENABLED: "true"
+  MARKET_FUTURES_SYMBOLS: "BTCUSDT,ETHUSDT,BNBUSDT"
+  
+  # Exchange configuration
+  EXCHANGE_NAME: "binance"
+  EXCHANGE_RATE_LIMIT: "true"
+  
+  # Scheduler configuration
+  SCHEDULER_INTERVAL: "5000"  # 5 minutes
+  SCHEDULER_ENABLED: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: market-fetcher-secrets
+  namespace: walder-apps
+type: Opaque
+stringData:
+  REDIS_URL: "redis://redis-service:6379"
+  # Exchange API keys (if needed)
+  # BINANCE_API_KEY: "..."
+  # BINANCE_SECRET_KEY: "..." 

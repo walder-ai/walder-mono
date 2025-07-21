@@ -11,6 +11,8 @@ export class RedisCacheService implements CacheService {
   constructor() {
     if (!config.redis) return
 
+    console.log(`🔗 Redis connecting to: ${config.redis.url}`)
+
     this.client = createClient({
       url: config.redis.url,
       socket: {
@@ -99,6 +101,66 @@ export class RedisCacheService implements CacheService {
       return data
     } catch (error) {
       console.error('Cache batch GET error:', error)
+      return {}
+    }
+  }
+
+  async getMarketData(marketType: 'spot' | 'futures'): Promise<Record<string, any>> {
+    if (!this.client) {
+      console.log('❌ No Redis client available')
+      return {}
+    }
+
+    try {
+      await this.ensureConnection()
+      console.log(`🔗 Using Redis URL: ${config.redis.url}`)
+      
+      // Get all keys matching the pattern
+      const pattern = `data:binance:${marketType}:*:data`
+      console.log(`🔍 Searching for pattern: ${pattern}`)
+      
+      const keys = await this.client.keys(pattern)
+      console.log(`📋 Found ${keys.length} keys:`, keys)
+      
+      if (keys.length === 0) return {}
+      
+      // Get data for each key individually (pipeline doesn't work well with JSON.GET)
+      const data: Record<string, any> = {}
+      
+      for (const key of keys) {
+        try {
+          console.log(`Processing key: ${key}`)
+          const result = await this.client.json.get(key, { path: '$' })
+          console.log(`Result for ${key}:`, typeof result, Array.isArray(result))
+          
+          if (result) {
+            const symbol = key.split(':')[3]
+            
+            // Handle both array and direct object responses
+            let symbolData = result
+            if (Array.isArray(result) && result.length > 0) {
+              symbolData = result[0]
+            }
+            
+            if (symbolData && typeof symbolData === 'object') {
+              data[symbol] = symbolData
+              console.log(`✅ Added ${symbol}`)
+            } else {
+              console.log(`❌ Invalid data structure for ${symbol}:`, symbolData)
+            }
+          } else {
+            console.log(`❌ No result for ${key}`)
+          }
+        } catch (error) {
+          console.error(`❌ Error getting ${key}:`, error)
+        }
+      }
+      
+      console.log(`🎯 Final market data keys:`, Object.keys(data))
+      console.log(`📊 Sample data:`, Object.keys(data).length > 0 ? data[Object.keys(data)[0]] : 'none')
+      return data
+    } catch (error) {
+      console.error('❌ Cache market data GET error:', error)
       return {}
     }
   }
