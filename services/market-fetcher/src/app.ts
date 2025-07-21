@@ -7,8 +7,8 @@ import { HealthChecker } from '../../../shared/health'
 
 const SERVICE_CONFIG = {
   name: 'market-fetcher',
-  version: '1.5.0',
-  features: ['hypersonic-data', 'quantum-caching', 'ai-scheduling', 'omni-exchange', 'neural-streams', 'time-prediction']
+  version: '2.0.0',
+  features: ['auto-scaling', 'zero-downtime', 'instant-rollback', 'gitops-powered', 'fully-automated']
 }
 
 export class App {
@@ -35,14 +35,13 @@ export class App {
     this.app = new Elysia()
       .get('/health', this.healthChecker.createHandler())
       .get('/', () => ({ 
-        message: `🚀 Hypersonic Market Engine v${SERVICE_CONFIG.version} - Time Traveler Mode!`, 
+        message: `🤖 AUTOMATION ENGINE v${SERVICE_CONFIG.version} - Fully Automated!`, 
         service: SERVICE_CONFIG.name,
         features: SERVICE_CONFIG.features,
-        status: 'hypersonic',
+        status: 'automated',
         timestamp: new Date().toISOString(),
-        deployment: 'GitOps with FluxCD',
-        performance: 'time-bending',
-        dimension: '4D-trading'
+        deployment: 'GitOps Fully Automated',
+        rollback: 'instant-available'
       }))
       .get('/api/status', () => ({
         service: SERVICE_CONFIG.name,
@@ -50,8 +49,7 @@ export class App {
         uptime: process.uptime(),
         cache_status: this.cacheService.getConnectionStatus() ? 'connected' : 'disconnected',
         environment: 'production',
-        speed: 'hypersonic',
-        temporal_state: 'synchronized'
+        automation: 'COMPLETE'
       }))
   }
 
@@ -61,10 +59,10 @@ export class App {
       port: config.port,
       hostname: '0.0.0.0'
     })
-    console.log(`🚀 Hypersonic Market Fetcher v${SERVICE_CONFIG.version} - Time Traveler Active!`)
-    console.log(`⚡ Quantum Pipeline: git → Actions → GHCR → FluxCD → K8s`)
-    console.log(`🧠 Neural Features: ${SERVICE_CONFIG.features.join(' | ')}`)
-    console.log(`🌟 GitOps Test: Everything is Working Perfectly!`)
+    console.log(`🤖 Automation Engine v${SERVICE_CONFIG.version} - ZERO TOUCH DEPLOYMENT!`)
+    console.log(`⚡ Full GitOps: git → build → deploy → rollback ready`)
+    console.log(`🎯 Features: ${SERVICE_CONFIG.features.join(' | ')}`)
+    console.log(`🚀 AUTOMATION COMPLETE!`)
     
     // Start background tasks after server is ready
     setTimeout(() => {
