@@ -17,7 +17,7 @@ spec:
       - name: ghcr-secret
       containers:
       - name: analytics-service
-        image: ghcr.io/walder-ai/analytics-service:latest
+        image: ghcr.io/walder-ai/analytics-service:latest # {"$imagepolicy": "flux-system:analytics-service"}
         ports:
         - containerPort: 3000
         envFrom:
