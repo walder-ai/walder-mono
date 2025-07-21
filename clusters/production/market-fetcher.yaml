@@ -30,7 +30,7 @@ spec:
       - name: ghcr-secret
       containers:
       - name: market-fetcher
-        image: ghcr.io/walder-ai/market-fetcher:latest # {"$imagepolicy": "flux-system:market-fetcher"}
+        image: ghcr.io/walder-ai/market-fetcher:latest
         ports:
         - containerPort: 3000
         envFrom:
