@@ -9,7 +9,7 @@ spec:
     name: analytics-service
   policy:
     alphabetical:
-      order: asc
+      order: desc
   filterTags:
     pattern: '^latest$'
 ---
@@ -23,6 +23,6 @@ spec:
     name: market-fetcher
   policy:
     alphabetical:
-      order: asc
+      order: desc
   filterTags:
     pattern: '^latest$'

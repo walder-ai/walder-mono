@@ -4,7 +4,7 @@ metadata:
   name: walder-mono-automation
   namespace: flux-system
 spec:
-  interval: 30m
+  interval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
