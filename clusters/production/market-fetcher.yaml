@@ -40,11 +40,11 @@ spec:
             name: redis-secret
         resources:
           requests:
-            memory: 256Mi
-            cpu: 200m
+            memory: 128Mi
+            cpu: 80m
           limits:
-            memory: 1Gi
-            cpu: 1000m
+            memory: 512Mi
+            cpu: 300m
 ---
 apiVersion: v1
 kind: Service
