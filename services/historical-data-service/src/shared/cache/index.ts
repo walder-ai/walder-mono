@@ -1,0 +1,1 @@
+export { RedisTimeSeriesService } from './redis-timeseries.service' 

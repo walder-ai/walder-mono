@@ -47,11 +47,11 @@ export function loadConfig(): AppConfig {
       activeOnly: process.env.MARKET_ACTIVE_ONLY !== 'false',
       spot: {
         enabled: process.env.MARKET_SPOT_ENABLED !== 'false',
-        symbols: process.env.MARKET_SPOT_SYMBOLS?.split(',') || ["BTC:USDT,ETH:USDT"]
+        symbols: process.env.MARKET_SPOT_SYMBOLS?.split(',') || ['BTC/USDT', 'ETH/USDT']
       },
       futures: {
         enabled: process.env.MARKET_FUTURES_ENABLED !== 'false',
-        symbols: process.env.MARKET_FUTURES_SYMBOLS?.split(',') || ["BTC:USDT/USDC,ETH:USDT/USDT,BNB:USDT/USDT"]
+        symbols: process.env.MARKET_FUTURES_SYMBOLS?.split(',') || ['BTC/USDT:USDT', 'ETH/USDT:USDT', 'SOL/USDT:USDT']
       }
     },
     scheduler: {
@@ -59,7 +59,7 @@ export function loadConfig(): AppConfig {
       interval: parseInt(process.env.SCHEDULER_INTERVAL || '5000')
     },
     redis: {
-      url: process.env.REDIS_URL || 'redis://localhost:6379'
+      url: process.env.REDIS_URL || 'redis://lredis-service:6379'
     }
   }
 } 

@@ -35,7 +35,7 @@ k8s/                          # Shared infrastructure
 └── redis.yaml               # Redis infrastructure
 
 services/
-├── analytics-service/
+├── historical-data-service/
 │   ├── k8s/
 │   │   ├── config.yaml      # Service-specific ConfigMap + Secret
 │   │   └── deployment.yaml  # Deployment + Service
@@ -51,13 +51,13 @@ services/
 
 **Service-specific ConfigMaps:**
 ```yaml
-# analytics-service
-ANALYTICS_ENABLED: "true"
-ANALYTICS_BATCH_SIZE: "100"
-
 # market-fetcher  
 MARKET_SPOT_ENABLED: "true"
 SCHEDULER_INTERVAL: "300000"
+
+# historical-data-service
+HISTORICAL_ENABLED: "true"
+DATA_RETENTION_DAYS: "30"
 ```
 
 **Service-specific Secrets:**
@@ -80,19 +80,19 @@ kubectl rollout restart deployment/market-fetcher -n walder-apps
 
 ## Services
 
-### analytics-service
-Data analysis and reporting service.
-
-**Tech Stack:** Bun + Elysia  
-**Port:** 3000  
-**Config:** `services/analytics-service/k8s/`
-
 ### market-fetcher
 Cryptocurrency exchange data aggregation service.
 
 **Tech Stack:** Bun + Elysia + CCXT + Redis Time Series  
-**Port:** 3001  
+**Port:** 3000  
 **Config:** `services/market-fetcher/k8s/`
+
+### historical-data-service
+Historical cryptocurrency data processing service.
+
+**Tech Stack:** Bun + Elysia + Redis Time Series  
+**Port:** 3001  
+**Config:** `services/historical-data-service/k8s/`
 
 ### Adding New Services
 Each new service automatically gets:
@@ -122,20 +122,12 @@ tilt down         # Stop all services
 
 **Access Points:**
 - 📊 Tilt UI: http://localhost:10350
-- 🔧 Analytics: http://localhost:3000  
-- 📈 Market-fetcher: http://localhost:3001
-- 🗄️ Redis: localhost:6379
+- 📈 Market-fetcher: http://localhost:3000
+- 📊 Historical-data: http://localhost:3001
+- 🗄️ Redis: lredis-service:6379
 - 🔍 Redis Insight: http://localhost:8001
 
 ## Environment Variables 📋
-
-### Analytics Service
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `SERVICE_NAME` | ConfigMap | `analytics-service` | Service identifier |
-| `LOG_LEVEL` | ConfigMap | `info` | Logging level |
-| `ANALYTICS_ENABLED` | ConfigMap | `true` | Enable analytics |
-| `ANALYTICS_BATCH_SIZE` | ConfigMap | `100` | Batch processing size |
 
 ### Market Fetcher
 | Variable | Type | Default | Description |
@@ -144,6 +136,15 @@ tilt down         # Stop all services
 | `MARKET_SPOT_ENABLED` | ConfigMap | `true` | Enable spot trading |
 | `MARKET_FUTURES_ENABLED` | ConfigMap | `true` | Enable futures |
 | `SCHEDULER_INTERVAL` | ConfigMap | `300000` | Fetch interval (5min) |
+| `REDIS_URL` | Secret | `redis://redis-service:6379` | Redis connection |
+
+### Historical Data Service
+| Variable | Type | Default | Description |
+|----------|------|---------|-------------|
+| `SERVICE_NAME` | ConfigMap | `historical-data-service` | Service identifier |
+| `HISTORICAL_ENABLED` | ConfigMap | `true` | Enable historical processing |
+| `DATA_RETENTION_DAYS` | ConfigMap | `30` | Data retention period |
+| `SCHEDULER_INTERVAL` | ConfigMap | `3600000` | Fetch interval (1h) |
 | `REDIS_URL` | Secret | `redis://redis-service:6379` | Redis connection |
 
 ## Performance Tips

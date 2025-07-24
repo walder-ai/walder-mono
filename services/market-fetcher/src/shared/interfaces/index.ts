@@ -22,7 +22,7 @@ export interface CacheService {
 }
 
 export interface ExchangeProvider {
-  fetchFilteredTickers(): Promise<any[]>
+  fetchFilteredTickers(): Promise<Record<string, TickerData>>
 }
 
 export interface MarketService {

@@ -1,0 +1,1 @@
+export { HistoricalDataService } from './historical.service' 
