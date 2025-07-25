@@ -7,7 +7,6 @@ RUN bun install
 
 FROM base AS dev
 # Copy only necessary files for development
-COPY shared/ ./shared/
 COPY tsconfig*.json ./
 COPY services/market-fetcher/ ./services/market-fetcher/
 

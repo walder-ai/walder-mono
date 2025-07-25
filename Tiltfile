@@ -2,7 +2,7 @@
 load('ext://restart_process', 'docker_build_with_restart')
 
 # Auto-discover services
-services_output = str(local('npx nx show projects --type=app')).strip()
+services_output = str(local('bunx nx show projects --type=app')).strip()
 services = services_output.split('\n') if services_output else []
 
 print('🔍 Services: %s' % services)

@@ -5,7 +5,6 @@ COPY package.json bun.lock ./
 RUN bun install
 
 FROM base AS dev
-COPY shared/ ./shared/
 COPY tsconfig*.json ./
 COPY services/historical-data-service/ ./services/historical-data-service/
 
