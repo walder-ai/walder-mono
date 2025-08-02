@@ -10,6 +10,11 @@ on:
     paths:
       - 'data-loader/**'
 
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
 env:
   REGISTRY: registry.digitalocean.com/walder
   IMAGE_NAME: data-loader

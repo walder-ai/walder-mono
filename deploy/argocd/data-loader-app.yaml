@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/walder-ai/walder-mono
+    repoURL: git@github.com:walder-ai/walder-mono.git
     targetRevision: main
     path: deploy/services/data-loader
   destination:
@@ -37,7 +37,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/walder-ai/walder-mono
+    repoURL: git@github.com:walder-ai/walder-mono.git
     targetRevision: main
     path: deploy/shared
   destination:
