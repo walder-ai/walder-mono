@@ -10,7 +10,7 @@ local('kubectl config use-context minikube')
 
 # Apply dev configuration
 k8s_yaml(['deploy/shared/clickhouse-secrets.yaml', 'deploy/data-loader/configmap.yaml'])
-k8s_yaml(local('sed "s/clickhouse-prod/clickhouse-dev/; s/production/development/; s/services/default/; s|registry.digitalocean.com/walder/data-loader:latest|data-loader:dev|; /nodeSelector:/,/doks.digitalocean.com/d" deploy/data-loader/deployment.yaml'))
+k8s_yaml(local('sed "s/clickhouse-prod/clickhouse-dev/; s/production/development/; s/services/default/; s|registry.digitalocean.com/walder/data-loader:.*|data-loader:dev|; /nodeSelector:/,/doks.digitalocean.com/d" deploy/data-loader/deployment.yaml'))
 
 # Build with live reload for development
 docker_build('data-loader:dev', '.', 
