@@ -18,6 +18,8 @@ spec:
     metadata:
       labels:
         app: data-loader
+      annotations:
+        configmap/restart: "2025-08-02-19-30"
     spec:
       terminationGracePeriodSeconds: 30
       nodeSelector:
