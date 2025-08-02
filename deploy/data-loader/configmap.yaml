@@ -11,7 +11,7 @@ data:
   # Sync settings
   SYNC_START_DATE: "2024-01-01"
   SYNC_TIMEFRAME: "5m"
-  SYNC_BATCH_SIZE: "5000"
+  SYNC_BATCH_SIZE: "1000"
   
   # Server settings
   PORT: "3000"
