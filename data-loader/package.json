@@ -1,0 +1,21 @@
+{
+  "name": "data-loader",
+  "version": "1.0.0",
+  "description": "Crypto data loader service",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build --compile --minify --target bun --outfile dist/server src/index.ts",
+    "start": "dist/server"
+  },
+  "dependencies": {
+    "@clickhouse/client": "^1.7.0",
+    "@elysiajs/cron": "^1.3.0",
+    "ccxt": "^4.4.96",
+    "elysia": "^1.3.6"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.19",
+    "typescript": "^5.8.3"
+  }
+} 

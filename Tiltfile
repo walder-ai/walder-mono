@@ -1,60 +1,47 @@
-# Auto-discover services
-services_output = str(local('npx nx show projects --type=app')).strip()
-services = services_output.split('\n') if services_output else []
+version_settings(constraint='>=0.22.2')
 
-USE_FLUX = os.environ.get('USE_FLUX', 'false') == 'true'
-print('🔍 Services: %s' % services)
+# Allow both contexts since we switch between them
+allow_k8s_contexts(['minikube', 'do-fra1-walder-k8s'])
 
-# Deploy manifests
-if USE_FLUX:
-  k8s_yaml('clusters/production/')
+# Check if PROD environment variable is set
+is_prod = os.getenv('PROD', '') != ''
+
+if is_prod:
+    print("→ Production monitoring mode")
+    # Switch to prod context
+    local('kubectl config use-context do-fra1-walder-k8s')
+    
+    # Apply unified deployment (defaults to prod)
+    k8s_yaml(['deploy/shared/clickhouse-secrets.yaml', 'deploy/services/data-loader/configmap.yaml', 'deploy/services/data-loader/deployment.yaml'])
+    
+    # Monitor existing prod deployment with logs
+    k8s_resource(
+        'data-loader',
+        port_forwards='3000:3000',
+        resource_deps=[],
+        trigger_mode=TRIGGER_MODE_MANUAL  # Don't auto-update
+    )
 else:
-  # Local dev - infrastructure with local Redis URL
-  k8s_yaml(blob('''
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: walder-apps
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: redis-secret
-  namespace: walder-apps
-type: Opaque
-stringData:
-  REDIS_URL: "redis://host.docker.internal:6379"
-'''))
-  
-  for service in services:
-    if service.strip():
-      manifest_content = str(read_file('clusters/production/%s.yaml' % service))
-                   # Replace registry images with local names
-             modified_manifest = manifest_content.replace(
-               'ghcr.io/walder-ai/%s:latest' % service,
-               service
-             )
-      k8s_yaml(blob(modified_manifest))
-
-for service in services:
-  if service.strip():
-               # Build image
-           docker_build(
-             'ghcr.io/walder-ai/%s' % service if USE_FLUX else service,
-      '.',
-      dockerfile='services/%s/Dockerfile' % service,
+    print("→ Development mode")
+    # Switch to dev context
+    local('kubectl config use-context minikube')
+    
+    # Override for dev: use dev secrets and development env
+    k8s_yaml(['deploy/shared/clickhouse-secrets.yaml', 'deploy/services/data-loader/configmap.yaml'])
+    k8s_yaml(local('sed "s/clickhouse-prod/clickhouse-dev/; s/production/development/" deploy/services/data-loader/deployment.yaml'))
+    
+    docker_build('data-loader', '.', 
+      dockerfile='deploy/services/data-loader/dockerfile', 
       target='dev',
       live_update=[
-        sync('./services/%s/src' % service, '/app/services/%s/src' % service),
-        run('bun install', trigger=['./package.json', './bun.lock'])
-      ]
-    )
+        sync('data-loader/src', '/app/src'),
+        run('bun install', trigger=['data-loader/package.json'])
+      ])
+    k8s_resource('data-loader', port_forwards='3000:3000')
     
-    # Port forward
-    k8s_resource(
-      service,
-      port_forwards='%d:3000' % (3000 + services.index(service)),
-      labels=['microservices']
+    # Cleanup old ReplicaSets periodically
+    local_resource('cleanup-old-pods',
+      cmd='kubectl get replicasets -n walder --sort-by=".metadata.creationTimestamp" -o name | head -n -2 | xargs -r kubectl delete -n walder',
+      trigger_mode=TRIGGER_MODE_MANUAL,
+      auto_init=False
     )
-
-print('✅ Ready: tilt up | FluxCD: USE_FLUX=true tilt up')

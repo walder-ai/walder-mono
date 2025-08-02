@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-loader-config
+  namespace: walder
+data:
+  # Exchange settings
+  EXCHANGE: "binance"
+  EXCHANGE_TIMEOUT: "30000"
+  
+  # Sync settings
+  SYNC_START_DATE: "2024-01-01"
+  SYNC_TIMEFRAME: "5m"
+  SYNC_BATCH_SIZE: "5000"
+  
+  # Server settings
+  PORT: "3000"
+  HOST: "0.0.0.0"
+  
+  # ClickHouse settings
+  CLICKHOUSE_REQUEST_TIMEOUT: "30000"

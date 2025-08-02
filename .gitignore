@@ -7,10 +7,6 @@ node_modules/
 /build
 /dist
 
-# Kubernetes secrets
-deploy/k8s/*-secret.yaml
-deploy/k8s/*-secret-*.yaml
-
 # Logs
 bun-debug.log*
 yarn-debug.log*
@@ -30,11 +26,16 @@ lerna-debug.log*
 dist/
 .next/
 .nuxt/
+*.bun-build
 
-# Environment files
-.env
-.env.local
-.env.*.local
+
+# Environment files (keep examples)
+*.env
+!*.env.example
+
+# Kubernetes
+secret.yaml
+*.secret.yaml
 
 # OS
 .DS_Store
@@ -42,12 +43,3 @@ Thumbs.db
 
 # Logs
 *.log
-
-
-.vscode/
-
-# Secrets - never commit real secrets!
-# clusters/production/redis-secret.yaml
-
-# Flux SOPS key
-age.agekey
