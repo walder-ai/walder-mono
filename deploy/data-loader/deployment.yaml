@@ -24,7 +24,7 @@ spec:
         doks.digitalocean.com/node-pool: services
       containers:
       - name: data-loader
-        image: registry.digitalocean.com/walder/data-loader:main-b1752eb
+        image: registry.digitalocean.com/walder/data-loader:main-b7253a9
         ports:
         - containerPort: 3000
         envFrom:
