@@ -4,11 +4,11 @@ on:
   push:
     branches: [ main ]
     paths: 
-      - 'data-loader/**'
+      - 'services/data-loader/**'
   pull_request:
     branches: [ main ]
     paths:
-      - 'data-loader/**'
+      - 'services/data-loader/**'
 
 permissions:
   contents: write
@@ -52,7 +52,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: deploy/services/data-loader/dockerfile
+        file: deploy/data-loader/Dockerfile
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
@@ -67,11 +67,11 @@ jobs:
         IMAGE_TAG="main-${SHORT_SHA}"
         
         # Update the deployment with new image tag
-        sed -i "s|image: registry.digitalocean.com/walder/data-loader:.*|image: registry.digitalocean.com/walder/data-loader:${IMAGE_TAG}|g" deploy/services/data-loader/deployment.yaml
+        sed -i "s|image: registry.digitalocean.com/walder/data-loader:.*|image: registry.digitalocean.com/walder/data-loader:${IMAGE_TAG}|g" deploy/data-loader/deployment.yaml
         
         # Commit the changes
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add deploy/services/data-loader/deployment.yaml
+        git add deploy/data-loader/deployment.yaml
         git diff --staged --quiet || git commit -m "chore: update image tag to ${IMAGE_TAG} [skip ci]"
         git push

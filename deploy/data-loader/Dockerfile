@@ -1,17 +1,17 @@
 FROM oven/bun:1 AS build
 WORKDIR /app
 
-COPY data-loader/package.json data-loader/bun.lock* ./
+COPY services/data-loader/package.json services/data-loader/bun.lock* ./
 RUN bun install --frozen-lockfile
 
 FROM build AS dev
-COPY data-loader/tsconfig.json ./
-COPY data-loader/src/ ./src/
+COPY services/data-loader/tsconfig.json ./
+COPY services/data-loader/src/ ./src/
 EXPOSE 3000
 CMD ["bun", "--watch", "src/index.ts"]
 
 FROM build AS production
-COPY data-loader/src/ ./src/
+COPY services/data-loader/src/ ./src/
 ENV NODE_ENV=production
 RUN bun build --compile --minify --target bun --outfile server ./src/index.ts
 

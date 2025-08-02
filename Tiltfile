@@ -9,16 +9,16 @@ print("🚀 Local development mode - Production managed by ArgoCD")
 local('kubectl config use-context minikube')
 
 # Apply dev configuration
-k8s_yaml(['deploy/shared/clickhouse-secrets.yaml', 'deploy/services/data-loader/configmap.yaml'])
-k8s_yaml(local('sed "s/clickhouse-prod/clickhouse-dev/; s/production/development/; s/services/default/" deploy/services/data-loader/deployment.yaml'))
+k8s_yaml(['deploy/shared/clickhouse-secrets.yaml', 'deploy/data-loader/configmap.yaml'])
+k8s_yaml(local('sed "s/clickhouse-prod/clickhouse-dev/; s/production/development/; s/services/default/; s|registry.digitalocean.com/walder/data-loader:latest|data-loader:dev|; /nodeSelector:/,/doks.digitalocean.com/d" deploy/data-loader/deployment.yaml'))
 
 # Build with live reload for development
-docker_build('data-loader', '.', 
-  dockerfile='deploy/services/data-loader/dockerfile', 
+docker_build('data-loader:dev', '.', 
+  dockerfile='deploy/data-loader/Dockerfile', 
   target='dev',
   live_update=[
-    sync('data-loader/src', '/app/src'),
-    run('bun install', trigger=['data-loader/package.json'])
+    sync('services/data-loader/src', '/app/src'),
+    run('bun install', trigger=['services/data-loader/package.json'])
   ])
 
 k8s_resource('data-loader', port_forwards='3000:3000')

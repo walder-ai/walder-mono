@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: git@github.com:walder-ai/walder-mono.git
     targetRevision: main
-    path: deploy/services/data-loader
+    path: deploy/data-loader
   destination:
     server: https://kubernetes.default.svc
     namespace: walder
